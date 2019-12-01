@@ -1,0 +1,24 @@
+{
+  "name": "musical-playground",
+  "version": "1.0.0",
+  "description": "Playing around with some NodeJS and music stuff",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bberak/musical-playground.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bberak/musical-playground/issues"
+  },
+  "homepage": "https://github.com/bberak/musical-playground#readme",
+  "dependencies": {
+    "audio-generator": "^2.1.2",
+    "audio-speaker": "^1.5.0",
+    "speaker": "git+https://github.com/bberak/node-speaker.git"
+  }
+}
