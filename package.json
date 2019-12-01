@@ -18,7 +18,6 @@
   "homepage": "https://github.com/bberak/musical-playground#readme",
   "dependencies": {
     "audio-generator": "^2.1.2",
-    "audio-speaker": "^1.5.0",
-    "speaker": "git+https://github.com/bberak/node-speaker.git"
+    "audio-speaker": "git+https://github.com/bberak/audio-speaker.git"
   }
 }
