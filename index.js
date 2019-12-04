@@ -1,17 +1,19 @@
 const Speaker = require("audio-speaker/stream");
 const Generator = require("audio-generator/stream");
 const readline = require("readline");
+const TWO_PI = Math.PI * 2;
 
-let freq = 441;
+let freq = 27.6;
+let amp = 1;
 
-Generator(function(time) {
-  //panned unisson effect
-  const τ = Math.PI * 2;
-  return [Math.sin(τ * time * freq), Math.sin(τ * time * (freq - 2))];
+Generator(time => {
+  return [
+    Math.sin(time * freq * TWO_PI) * amp,
+    Math.sin((time - 0.5) * freq * TWO_PI) * amp
+  ];
 }).pipe(
   Speaker({
-    //PCM input format defaults, optional.
-    //channels: 2,
+    channels: 2
     //sampleRate: 44100,
     //byteOrder: 'LE',
     //bitDepth: 16,
