@@ -1,6 +1,7 @@
 const _ = require("lodash");
 const readline = require("readline");
 const Generator = require("audio-generator/stream");
+const Speaker = require("audio-speaker/stream");
 
 readline.emitKeypressEvents(process.stdin);
 process.stdin.setRawMode(true);
@@ -15,7 +16,7 @@ const remap = (n, start1, stop1, start2, stop2) => {
 
 const two_pi = Math.PI * 2;
 
-const oscillator = args => {
+const Oscillator = args => {
 	let wave = _.get(args, "wave", Math.sin);
 	let frequency = _.get(args, "frequency", 440);
 	let amplitude = _.get(args, "amplitude", 1);
@@ -41,6 +42,7 @@ module.exports = {
 	two_pi,
 	keypress,
 	_,
-	oscillator,
-	Oscillator: oscillator
+	Oscillator,
+	Generator,
+	Speaker
 };

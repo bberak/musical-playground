@@ -1,7 +1,6 @@
-const Speaker = require("audio-speaker/stream");
-const Generator = require("audio-generator/stream");
-const { keypress, two_pi } = require("./utils");
-
+const { keypress, two_pi, Oscillator, Speaker } = require("./utils");
+const oscillator = Oscillator();
+const speaker = Speaker();
 const pitches = Object.freeze({
   a: 0 / 12,
   b: 2 / 12,
@@ -16,18 +15,7 @@ let octave = 4;
 let note = "a";
 let amp = 1;
 
-Generator(time => {
-  const freq = 27.5 * Math.pow(2, octave + pitches[note]);
-
-  return [
-    Math.sin(time * two_pi * freq) * amp,
-    Math.sin(time * two_pi * freq) * amp
-  ];
-}).pipe(
-  Speaker({
-    channels: 2
-  })
-);
+oscillator.pipe(speaker);
 
 keypress(key => {
   if (key.ctrl && key.name === "c") process.exit();
@@ -37,6 +25,8 @@ keypress(key => {
   if (key.name === "down") octave--;
 
   if (pitches[key.name] !== undefined) note = key.name;
+
+  oscillator.setFrequency(27.5 * Math.pow(2, octave + pitches[note]));
 
   console.log(note, octave);
 });
