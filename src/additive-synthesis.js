@@ -1,7 +1,6 @@
 const Speaker = require("audio-speaker/stream");
 const Generator = require("audio-generator/stream");
 const { remap, two_pi, keypress, _ } = require("./utils");
-
 const amps = _.range(0, 5).map(x => 1 / 5 / (x + 1));
 const width = 800;
 const height = 600;
