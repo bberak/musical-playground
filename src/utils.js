@@ -21,14 +21,16 @@ const oscillator = args => {
 	let amplitude = _.get(args, "amplitude", 1);
 
 	const generator = Generator(time => {
-		const freq = 27.5 * Math.pow(2, octave + pitches[note]);
-
 		return wave(time * two_pi * frequency) * amplitude;
 	});
 
-	generator.wave = newWave => wave = newWave;
-	generator.frequency = newFrequency => frequency = newFrequency;
-	generator.amplitude = newAmplitude => amplitude = newAmplitude;
+	generator.getWave = () => wave;
+	generator.getFrequency = () => frequency;
+	generator.getAmplitude = () => amplitude;
+
+	generator.setWave = newWave => wave = newWave;
+	generator.setFrequency = newFrequency => frequency = newFrequency;
+	generator.setAmplitude = newAmplitude => amplitude = newAmplitude;
 	generator.mute = () => generator.amplitude(0);
 
 	return generator;
@@ -39,5 +41,6 @@ module.exports = {
 	two_pi,
 	keypress,
 	_,
-	oscillator
+	oscillator,
+	Oscillator: oscillator
 };
