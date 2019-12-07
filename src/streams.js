@@ -55,3 +55,4 @@ const toUpper = transform(input => input.map(x => x.toUpperCase()));
 const ws = createWriteSteam();
 
 rs.pipe(toUpper).pipe(transform(input => input.join(","))).pipe(ws);
+

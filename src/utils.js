@@ -41,31 +41,25 @@ const Oscillator = args => {
 	return generator;
 };
 
-const combine = oscillators => {
-	const rs = Readable({ objectMode: true });
+const Mixer = (channels, mapper = x => x) => {
+	channels.forEach(c => {
+		c.wave = _.get(c, "wave", Math.sin);
+		c.frequency = _.get(c, "frequency", 0);
+		c.amplitude = _.get(c, "amplitude", 1);
+		c.timeScale = _.get(c, "timeScale", 1);
+	});
 
-	rs._read = () => {
-		const bufs = oscillators.map(s => s.read());
-		const first = bufs[0];
+	const mixer = Generator(time => {
+		const samples = channels.map(
+			({ wave, timeScale, frequency, amplitude }) =>
+				wave(time * timeScale * two_pi * frequency) * amplitude
+		);
 
-		first.data = bufs.length === 1 ? first.data : bufs.map(x => x.data[0]);
+		return mapper(samples);
+	});
+	mixer.channels = channels;
 
-		rs.push(first);
-	};
-
-	return rs;
-};
-
-const transform = func => {
-	const ts = Transform({ objectMode: true, highWaterMark: 0 });
-
-	ts._transform = (buf, enc, next) => {
-		ts.push(func(buf));
-		
-		next();
-	};
-
-	return ts;
+	return mixer;
 };
 
 module.exports = {
@@ -73,9 +67,8 @@ module.exports = {
 	two_pi,
 	keypress,
 	_,
-	Oscillator,
 	Generator,
 	Speaker,
-	combine,
-	transform
+	Oscillator,
+	Mixer
 };
