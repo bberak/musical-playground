@@ -6,13 +6,17 @@ const {
 	sawtooth,
 	square,
 	average,
-	split
+	split,
+	a,
+	triangle,
+	noise,
+	scale
 } = require("../synth");
 const { exit } = require("../utils");
 
 synthesizer(time => {
 
-	const track1 = signal(sine(440))(time);
+	const track1 = signal(a())(time);
 	const track2 = signal(sine(sine(2)))(time);
 	const track3 = signal(sine(sine(3)))(time);
 

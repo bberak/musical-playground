@@ -68,6 +68,26 @@ const sawtooth = (frequency, inverse) => time => waves.sawtooth(time * evaluate(
 
 const square = (frequency, ratio) => time => waves.square(time * evaluate(frequency, time), ratio);
 
+const triangle = (frequency, ratio) => time => waves.triangle(time * evaluate(frequency, time), ratio); 
+
+const noise = waves.noise; 
+
+const note = pitch => (octave = 4) => sine(27.5 * Math.pow(2, octave + pitch))
+
+const a = note(0 / 12);
+
+const b = note(2 / 12);
+
+const c = note(3 / 12);
+
+const d = note(5 / 12);
+
+const e = note(7 / 12);
+
+const f = note(8 / 12);
+
+const g = note(10 / 12);
+
 const log = label => value => {
 	if (label)
 		console.log(label, value)
@@ -79,7 +99,7 @@ const log = label => value => {
 
 const split = n => value => _.range(0, n).map(() => value);
 
-const scale = n => n * value;
+const scale = n => value => n * value;
 
 const sum = (...values) => _.sum(_.flatten(values));
 
@@ -120,10 +140,21 @@ module.exports = {
 	sawtooth,
 	saw: sawtooth,
 	square,
+	triangle,
+	noise,
+	note,
+	a,
+	b,
+	c,
+	d,
+	e,
+	f,
+	g,
 
 	log,
 	split,
 	scale,
+	multiply: scale,
 	sum,
 	average,
 	avg: average
