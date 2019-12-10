@@ -12,8 +12,19 @@ const remap = (n, start1, stop1, start2, stop2) => {
 	return ((n - start1) / (stop1 - start1)) * (stop2 - start2) + start2;
 };
 
+const exit = () => {
+	keypress(key => {
+		if (key.ctrl && key.name === "c")
+			process.exit();
+	})
+
+	console.log("Press control + c to exit")
+}
+
 module.exports = {
 	two_pi,
 	remap,
-	keypress
+	keypress,
+	exit,
+	listenForExit: exit
 };

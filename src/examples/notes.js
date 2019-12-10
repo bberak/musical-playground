@@ -1,5 +1,5 @@
-const { keypress } = require("./utils");
-const { Oscillator, Speaker } = require("./synth");
+const { keypress } = require("../utils");
+const { Oscillator, Speaker } = require("../synth");
 const oscillator = Oscillator();
 const speaker = Speaker();
 const pitches = Object.freeze({

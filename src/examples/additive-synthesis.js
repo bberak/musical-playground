@@ -1,5 +1,5 @@
-const { remap, keypress } = require("./utils");
-const { Mixer, Speaker } = require("./synth");
+const { remap, keypress } = require("../utils");
+const { Mixer, Speaker } = require("../synth");
 const _ = require("lodash")
 const mixer = Mixer(
   _.range(0, 5).map(num => ({ amplitude: 1 / 5 / (num + 1) })),
