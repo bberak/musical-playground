@@ -79,6 +79,16 @@ const log = label => value => {
 
 const split = n => value => _.range(0, n).map(() => value);
 
+const scale = n => n * value;
+
+const sum = (...values) => _.sum(_.flatten(values));
+
+const average = (...values) => {
+	const arr = _.flatten(values);
+
+	return _.sum(arr) / arr.length;
+};
+
 module.exports = {
 	generator,
 	speaker,
@@ -112,5 +122,9 @@ module.exports = {
 	square,
 
 	log,
-	split
+	split,
+	scale,
+	sum,
+	average,
+	avg: average
 };
