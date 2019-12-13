@@ -111,6 +111,8 @@ const average = (...values) => {
 
 const limit = (min, max) => value => value > max ? max : value < min ? min : value;
 
+const gain = factor => (...values) => _.sum(_.flatten(values).map(evaluate).map(scale(evaluate(factor))));
+
 module.exports = {
 	generator,
 	speaker,
@@ -161,5 +163,6 @@ module.exports = {
 	average,
 	avg: average,
 	limit,
-	constrain: limit
+	constrain: limit,
+	gain
 };
