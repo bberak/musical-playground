@@ -1,6 +1,8 @@
 const { synthesizer, signal, sine, a } = require("../synth");
 const { exit } = require("../utils");
 
+//-- Combinative synthesis?
+
 synthesizer(time => {
 	const track1 = signal(a())(time);
 	const track2 = signal(sine(sine(2)))(time);

@@ -109,6 +109,8 @@ const average = (...values) => {
 	return _.sum(arr) / arr.length;
 };
 
+const limit = (min, max) => value => value > max ? max : value < min ? min : value;
+
 module.exports = {
 	generator,
 	speaker,
@@ -157,5 +159,7 @@ module.exports = {
 	multiply: scale,
 	sum,
 	average,
-	avg: average
+	avg: average,
+	limit,
+	constrain: limit
 };
