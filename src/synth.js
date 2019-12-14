@@ -58,7 +58,9 @@ const synthesizer = graph => {
 	}
 }
 
-const signal = (...funcs) => _.flow(_.flatten(funcs || []))
+const toFunction = x => _.isFunction(x) ? x : () => x;
+
+const signal = (...funcs) => _.flow(_.flatten(funcs || []).map(toFunction))
 
 const evaluate = (input, args) => _.isFunction(input) ? input(args) : input;
 
@@ -113,6 +115,20 @@ const limit = (min, max) => value => value > max ? max : value < min ? min : val
 
 const gain = factor => (...values) => _.sum(_.flatten(values).map(evaluate).map(scale(evaluate(factor))));
 
+const lowPass = () => {
+	let smoothed = 0;
+	let lastUpdate = 0;
+
+	return (newValue, time, smoothing) => {
+		let elapsedTime = time - lastUpdate;
+
+		lastUpdate = time;
+		smoothed += (elapsedTime * (newValue - smoothed)) / smoothing;
+
+		return smoothed;
+	};
+};
+
 module.exports = {
 	generator,
 	speaker,
@@ -121,8 +137,7 @@ module.exports = {
 	synthesizer,
 	synthesize: synthesizer,
 	synth: synthesizer,
-
-	//-- For backwards compatibility
+	graph: synthesizer,
 	Generator: generator,
 	Speaker: speaker,
 	Oscillator: oscillator,
@@ -130,7 +145,6 @@ module.exports = {
 	Synthesizer: synthesizer,
 	Synthesize: synthesizer,
 	Synth: synthesizer,
-
 	signal,
 	pipe: signal,
 	link: signal,
@@ -138,7 +152,6 @@ module.exports = {
 	track: signal,
 	connect: signal,
 	timeline: signal,
-
 	sine,
 	sin: sine,
 	sawtooth,
@@ -154,7 +167,6 @@ module.exports = {
 	e,
 	f,
 	g,
-
 	log,
 	split,
 	scale,
@@ -164,5 +176,6 @@ module.exports = {
 	avg: average,
 	limit,
 	constrain: limit,
-	gain
+	gain,
+	lowPass: _.memoize(lowPass)
 };
