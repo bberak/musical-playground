@@ -60,17 +60,19 @@ const synthesizer = graph => {
 
 const toFunction = x => _.isFunction(x) ? x : () => x;
 
-const signal = (...funcs) => _.flow(_.flatten(funcs || []).map(toFunction))
+const toFlatArray = (...values) => _.flatten(values || []);
 
 const evaluate = (input, args) => _.isFunction(input) ? input(args) : input;
 
-const sine = (frequency, phase) => time => waves.sine(time * evaluate(frequency, time), phase)
+const signal = (...funcs) => _.flow(toFlatArray(funcs).map(toFunction))
 
-const sawtooth = (frequency, inverse) => time => waves.sawtooth(time * evaluate(frequency, time), inverse);
+const sine = (frequency, phase) => time => waves.sine(time * frequency, phase)
 
-const square = (frequency, ratio) => time => waves.square(time * evaluate(frequency, time), ratio);
+const sawtooth = (frequency, inverse) => time => waves.sawtooth(time * frequency, inverse);
 
-const triangle = (frequency, ratio) => time => waves.triangle(time * evaluate(frequency, time), ratio); 
+const square = (frequency, ratio) => time => waves.square(time * frequency, ratio);
+
+const triangle = (frequency, ratio) => time => waves.triangle(time * frequency, ratio); 
 
 const noise = waves.noise; 
 
@@ -103,23 +105,23 @@ const split = n => value => _.range(0, n).map(() => value);
 
 const scale = n => value => n * value;
 
-const sum = (...values) => _.sum(_.flatten(values));
+const sum = (...values) => _.sum(toFlatArray(values));
 
 const average = (...values) => {
-	const arr = _.flatten(values);
+	const arr = toFlatArray(values);
 
 	return _.sum(arr) / arr.length;
 };
 
 const limit = (min, max) => value => value > max ? max : value < min ? min : value;
 
-const gain = factor => (...values) => _.sum(_.flatten(values).map(evaluate).map(scale(evaluate(factor))));
+const gain = factor => (...values) => _.sum(toFlatArray(values).map(evaluate).map(scale(factor)));
 
-const lowPass = () => {
+const lowPass = _.memoize(() => {
 	let smoothed = 0;
 	let lastUpdate = 0;
 
-	return (newValue, time, smoothing) => {
+	return (time, smoothing) => newValue => {
 		let elapsedTime = time - lastUpdate;
 
 		lastUpdate = time;
@@ -127,17 +129,18 @@ const lowPass = () => {
 
 		return smoothed;
 	};
-};
+});
+
+const map = (...funcs) => (...args) =>  {
+	const arrFunctions = toFlatArray(funcs);
+	const arrArgs = toFlatArray(args);
+
+	return arrFunctions.map((f, i) => evaluate(f, arrArgs[i]))
+}
+
+const reduce = func => (...args) => toFlatArray(args).reduce(func, 0);
 
 module.exports = {
-	generator,
-	speaker,
-	oscillator,
-	mixer,
-	synthesizer,
-	synthesize: synthesizer,
-	synth: synthesizer,
-	graph: synthesizer,
 	Generator: generator,
 	Speaker: speaker,
 	Oscillator: oscillator,
@@ -145,13 +148,23 @@ module.exports = {
 	Synthesizer: synthesizer,
 	Synthesize: synthesizer,
 	Synth: synthesizer,
+	//-- Above aliases are for backwards compatibility --//
+	generator,
+	speaker,
+	oscillator,
+	mixer,
+	synthesizer,
+	synthesize: synthesizer,
+	synth: synthesizer,
+	toFunction,
+	toFlatArray,
+	evaluate,
 	signal,
 	pipe: signal,
 	link: signal,
 	chain: signal,
 	track: signal,
 	connect: signal,
-	timeline: signal,
 	sine,
 	sin: sine,
 	sawtooth,
@@ -177,5 +190,7 @@ module.exports = {
 	limit,
 	constrain: limit,
 	gain,
-	lowPass: _.memoize(lowPass)
+	lowPass,
+	map,
+	reduce
 };
