@@ -121,13 +121,63 @@ const lowPass = _.memoize(() => {
 	let smoothed = 0;
 	let lastUpdate = 0;
 
-	return (time, smoothing) => nextValue => {
+	return (time, smoothing) => input => {
 		let elapsedTime = time - lastUpdate;
 
 		lastUpdate = time;
-		smoothed += (elapsedTime * (nextValue - smoothed)) / smoothing;
+		smoothed += (elapsedTime * (input - smoothed)) / smoothing;
 
 		return smoothed;
+	};
+});
+
+const lowPass2 = _.memoize((key, samplingRate = 44100) => {
+	return (smoothingTimeInMs = 40.0) => {
+
+		const c_twoPi = 6.283185307179586476925286766559;
+
+        const a = Math.exp(-c_twoPi / (smoothingTimeInMs * 0.001 * samplingRate));
+        const b = 1.0 - a;
+        const z = 0.0;
+
+        return input => {
+			return (input * b) + (z * a);
+		};
+	} 
+});
+
+const lowPass3 = _.memoize((key, samplingRate = 44100) => {
+
+	//-- https://www.musicdsp.org/en/latest/Filters/38-lp-and-hp-filter.html
+	
+	let in1 = 0;
+	let in2 = 0;
+
+	let out1 = 0;
+	let out2 = 0;
+
+	return (cutOff = 200, resonance = 0.7) => {
+
+		const c = 1.0 / Math.tan((Math.PI * cutOff) / samplingRate);
+
+		const a1 = 1.0 / (1.0 + resonance * c + c * c);
+		const a2 = 2 * a1;
+		const a3 = a1;
+		const b1 = 2.0 * (1.0 - c * c) * a1;
+		const b2 = (1.0 - resonance * c + c * c) * a1;
+
+		return input => {
+			const output =
+				a1 * input + a2 * in1 + a3 * in2 - b1 * out1 - b2 * out2;
+
+			in2 = in1;
+			in1 = input;
+
+			out2 = out1;
+			out1 = output;
+
+			return output;
+		};
 	};
 });
 
@@ -136,18 +186,18 @@ const movingAverage = _.memoize((key, numSamples = 1024) => {
 	let samples = [];
 	let index = 0;
 
-	return nextValue => {
+	return input => {
 
 		if (index === numSamples)
 			index = 0;
 
-		samples[index++] = nextValue;
+		samples[index++] = input;
 
 		return _.sum(samples) / samples.length;
 	};
 });
 
-const map = (...funcs) => (...args) =>  {
+const apply = (...funcs) => (...args) =>  {
 	const arrFunctions = toFlatArray(funcs);
 	const arrArgs = toFlatArray(args);
 
@@ -207,8 +257,10 @@ module.exports = {
 	constrain: limit,
 	gain,
 	lowPass,
+	lowPass2,
+	lowPass3,
 	movingAverage,
 	movingAvg: movingAverage,
-	map,
+	apply,
 	reduce
 };
