@@ -60,7 +60,7 @@ const synthesizer = graph => {
 
 const toFunction = x => _.isFunction(x) ? x : () => x;
 
-const toFlatArray = (...values) => _.flatten(values || []);
+const toFlatArray = (...values) => _.flattenDeep(values || []);
 
 const evaluate = (input, args) => _.isFunction(input) ? input(args) : input;
 
@@ -121,13 +121,29 @@ const lowPass = _.memoize(() => {
 	let smoothed = 0;
 	let lastUpdate = 0;
 
-	return (time, smoothing) => newValue => {
+	return (time, smoothing) => nextValue => {
 		let elapsedTime = time - lastUpdate;
 
 		lastUpdate = time;
-		smoothed += (elapsedTime * (newValue - smoothed)) / smoothing;
+		smoothed += (elapsedTime * (nextValue - smoothed)) / smoothing;
 
 		return smoothed;
+	};
+});
+
+const movingAverage = _.memoize((key, numSamples = 1024) => {
+	
+	let samples = [];
+	let index = 0;
+
+	return nextValue => {
+
+		if (index === numSamples)
+			index = 0;
+
+		samples[index++] = nextValue;
+
+		return _.sum(samples) / samples.length;
 	};
 });
 
@@ -191,6 +207,8 @@ module.exports = {
 	constrain: limit,
 	gain,
 	lowPass,
+	movingAverage,
+	movingAvg: movingAverage,
 	map,
 	reduce
 };
