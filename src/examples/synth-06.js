@@ -1,12 +1,12 @@
-const { synthesizer, compose, noise, lowPass } = require("../synth");
+const { synthesizer, compose, noise, highPass } = require("../synth");
 const { exit } = require("../utils");
 
-//-- Low Pass Filter
+//-- High Pass Filter
 
 synthesizer(time => {
 	const track1 = compose(
 		noise,
-		lowPass("lp")(200),
+		highPass("hp")(1800)
 	)(time)
 
 	return track1;
