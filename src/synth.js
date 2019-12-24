@@ -206,7 +206,9 @@ const apply = (...funcs) => (...args) =>  {
 	return arrFunctions.map((f, i) => evaluate(f, arrArgs[i]))
 }
 
-const reduce = func => (...args) => toFlatArray(args).reduce(func, 0);
+const reduce = (func, initial = 1) => (...args) => toFlatArray(args).reduce(func, initial);
+
+const filter = predicate => (...args) => toFlatArray(args).filter(predicate);
 
 module.exports = {
 	Generator: generator,
@@ -264,5 +266,7 @@ module.exports = {
 	movingAverage,
 	movingAvg: movingAverage,
 	apply,
-	reduce
+	map: apply,
+	reduce,
+	filter
 };
