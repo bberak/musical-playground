@@ -162,7 +162,7 @@ const highPass = _.memoize((key, samplingRate = 44100) => {
 
 	return (cutOff = 400, resonance = 0.7) => {
 
-	const c = Math.tan((Math.PI * cutOff) / samplingRate);
+		const c = Math.tan((Math.PI * cutOff) / samplingRate);
 
 		const a1 = 1.0 / (1.0 + resonance * c + c * c);
 		const a2 = -2 * a1;
@@ -185,6 +185,31 @@ const highPass = _.memoize((key, samplingRate = 44100) => {
 	};
 });
 
+const envelope = _.memoize((key, samplingRate = 44100) => {
+	//-- https://www.musicdsp.org/en/latest/Analysis/136-envelope-follower-with-different-attack-and-release.html
+	let env = 0;
+
+	return (attackInMs, releaseInMs) => {
+		const attackCoef = Math.pow(
+			0.01,
+			1.0 / (attackInMs * samplingRate * 0.001)
+		);
+		const releaseCoef = Math.pow(
+			0.01,
+			1.0 / (releaseInMs * samplingRate * 0.001)
+		);
+
+		return input => {
+			let tmp = Math.abs(input);
+
+			if (tmp > env) env = attackCoef * (env - tmp) + tmp;
+			else env = releaseCoef * (env - tmp) + tmp;
+
+			return env;
+		};
+	};
+});
+
 const movingAverage = _.memoize((key, numSamples = 1024) => {
 	
 	let samples = [];
@@ -198,6 +223,21 @@ const movingAverage = _.memoize((key, numSamples = 1024) => {
 		samples[index++] = input;
 
 		return _.sum(samples) / samples.length;
+	};
+});
+
+const smooth = _.memoize((key, samplingRate = 44100) => {
+	
+	let last = 0;
+	let max = 1 / samplingRate;
+
+	return input => {
+
+		const diff = Math.abs(input - last);
+
+		last = diff > max ? input * 0.5 : input;
+
+		return last;
 	};
 });
 
@@ -266,6 +306,7 @@ module.exports = {
 	gain,
 	lowPass,
 	highPass,
+	envelope,
 	movingAverage,
 	movingAvg: movingAverage,
 	apply,

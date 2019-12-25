@@ -22,6 +22,7 @@ const {
 	g,
 	lowPass,
 	highPass,
+	envelope,
 	log
 } = require("../synth");
 const { exit, keypress } = require("../utils");
@@ -57,7 +58,7 @@ const notes = {
 	"p": e(5)
 };
 
-let modifiers = [
+let effects = [
 	(base, time, mix) => base + compose(triangle(4), lowPass("lp1")(220))(time) * mix,
 	(base, time, mix) => base * sine(2)(time) * 4 * mix,
 	(base, time, mix) => base + compose(sine(8), lowPass("lp2")(120))(time) * mix,
@@ -66,7 +67,7 @@ let modifiers = [
 ];
 
 let note = notes["z"];
-let modifier = modifiers[0];
+let effect = effects[0];
 let mix = 0.5;
 
 keypress(key => {
@@ -74,13 +75,19 @@ keypress(key => {
 		note = notes[key.name]
 
 	switch (key.name) {
-		case "left": modifier = modifiers[modifiers.indexOf(modifier) - 1] || modifiers[modifiers.length - 1]; break;
-		case "right": modifier = modifiers[modifiers.indexOf(modifier) + 1] || modifiers[0]; break;
-		case "up": mix = limit(-0.5, 1.5)(mix + 0.02); break;
-		case "down": mix = limit(-0.5, 1.5)(mix - 0.02); break;
+		case "left": effect = effects[effects.indexOf(effect) - 1] || effects[effects.length - 1]; break;
+		case "right": effect = effects[effects.indexOf(effect) + 1] || effects[0]; break;
+		case "up": mix = limit(-0.5, 1.5)(mix + 0.05); break;
+		case "down": mix = limit(-0.5, 1.5)(mix - 0.05); break;
 	}
 });
 
-synthesizer(time => modifier(note(time), time, mix)).play();
+synthesizer(time =>
+	compose(
+		note,
+		base => effect(base, time, mix),
+		envelope("e")(2, 2)
+	)(time)
+).play();
 
 exit();
