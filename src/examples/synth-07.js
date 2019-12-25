@@ -12,6 +12,7 @@ const {
 	square,
 	clausen,
 	noise,
+	perlin,
 	scale,
 	a,
 	b,
@@ -63,6 +64,7 @@ let effects = [
 	(base, time, mix) => base * sine(2)(time) * 4 * mix,
 	(base, time, mix) => base + compose(sine(8), lowPass("lp2")(120))(time) * mix,
 	(base, time, mix) => base + compose(sine(2), lowPass("lp2")(120))(time) * mix,
+	(base, time, mix) => base + perlin(1)(time) * mix,
 	(base, time, mix) => base * mix,
 ];
 

@@ -3,6 +3,9 @@ const speaker = require("audio-speaker/stream");
 const _ = require("lodash");
 const { two_pi } = require("./utils");
 const waves = require("periodic-function")
+const { noise: noisejs } = require("./perlin");
+
+noisejs.seed(Math.random()); 
 
 const oscillator = args => {
 	let wave = _.get(args, "wave", Math.sin);
@@ -77,6 +80,8 @@ const triangle = (frequency, ratio) => time => waves.triangle(time * frequency, 
 const clausen = (frequency, limit) => time => waves.clausen(time * frequency, limit); 
 
 const noise = waves.noise; 
+
+const perlin = (scale = 1) => time => noisejs.perlin2(time * scale, 1);
 
 const note = pitch => (octave = 4) => sine(27.5 * Math.pow(2, octave + pitch))
 
@@ -286,6 +291,8 @@ module.exports = {
 	triangle,
 	clausen,
 	noise,
+	static: noise,
+	perlin,
 	note,
 	a,
 	b,
