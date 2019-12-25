@@ -7,6 +7,8 @@ const {
 	reduce,
 	sine,
 	triangle,
+	sawtooth,
+	square,
 	noise,
 	scale,
 	a,
@@ -17,51 +19,58 @@ const {
 	f,
 	g,
 	lowPass,
+	highPass,
 	log
 } = require("../synth");
 const { exit, keypress } = require("../utils");
 
-let notes = [];
+const library = {
+	"1": d(3),
+	"2": e(3),
+	"3": f(3),
+	"4": g(3),
+	"5": a(4),
+	"6": b(4),
+	"7": c(4),
+	"8": d(4),
+	"9": e(4),
+	"0": f(4),
+	"q": sine(320),
+	"w": compose(triangle(120), lowPass("w")(220)),
+	"e": compose(sawtooth(120), lowPass("e")(220)),
+	"r": compose(square(120), lowPass("r")(220)),
+	"t": compose(noise, lowPass("t")(260)),
+	"y": compose(0),
+	"u": compose(0),
+	"i": compose(0),
+	"o": compose(0),
+	"p": compose(0)
+};
+
+let effect = library["5"];
 let modifiers = [];
 
 keypress(key => {
-	if ("a,b,c,d,e,f,g".indexOf(key.name) !== -1) {
-		if (notes.indexOf(key.name) === -1) notes.push(key.name);
-		else notes = notes.filter(x => x !== key.name);
-	}
+	if (library[key.name])
+		effect = library[key.name]
 
 	if (["left", "right", "up", "down"].indexOf(key.name) !== -1) {
 		if (modifiers.indexOf(key.name) === -1) modifiers.push(key.name);
 		else modifiers = modifiers.filter(x => x !== key.name);
 	}
-
-	console.log("Notes", notes);
-	console.log("Modifiers", modifiers);
 });
 
 synthesizer(time => {
-	const chord = compose(
-		split(7),
-		map(
-			compose(a(4), scale(notes.indexOf("a") === -1 ? 0 : 1)),
-			compose(b(4), scale(notes.indexOf("b") === -1 ? 0 : 1)),
-			compose(c(4), scale(notes.indexOf("c") === -1 ? 0 : 1)),
-			compose(d(4), scale(notes.indexOf("d") === -1 ? 0 : 1)),
-			compose(e(4), scale(notes.indexOf("e") === -1 ? 0 : 1)),
-			compose(f(4), scale(notes.indexOf("f") === -1 ? 0 : 1)),
-			compose(g(4), scale(notes.indexOf("g") === -1 ? 0 : 1))
-		),
-		filter(x => x !== 0),
-		reduce((output, input) =>  output * input)
-	)(time)
+	const base = effect(time);
 
-	const lfo1 = sine(5)(time);
-
-	const lfo2 = sine(lfo1)(time);
-
-	const lfo3 = triangle(22)(time);
-
-	return chord * lfo1 * lfo2 * (lfo3 * 0.2);
+	return (
+		base *
+		compose(
+			triangle(120),
+			lowPass("lp2")(220)
+		)(time) *
+		compose(sine(2))(time)
+	);
 }).play();
 
 exit();
