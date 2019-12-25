@@ -3,12 +3,14 @@ const {
 	compose,
 	split,
 	map,
+	limit,
 	filter,
 	reduce,
 	sine,
 	triangle,
 	sawtooth,
 	square,
+	clausen,
 	noise,
 	scale,
 	a,
@@ -24,53 +26,61 @@ const {
 } = require("../synth");
 const { exit, keypress } = require("../utils");
 
-const library = {
-	"1": d(3),
-	"2": e(3),
-	"3": f(3),
-	"4": g(3),
-	"5": a(4),
-	"6": b(4),
-	"7": c(4),
-	"8": d(4),
-	"9": e(4),
-	"0": f(4),
-	"q": sine(320),
-	"w": compose(triangle(120), lowPass("w")(220)),
-	"e": compose(sawtooth(120), lowPass("e")(220)),
-	"r": compose(square(120), lowPass("r")(220)),
-	"t": compose(noise, lowPass("t")(260)),
-	"y": compose(0),
-	"u": compose(0),
-	"i": compose(0),
-	"o": compose(0),
-	"p": compose(0)
+const notes = {
+	"z": a(2),
+	"x": b(2),
+	"c": c(2),
+	"v": d(2),
+	"b": e(2),
+	"n": f(2),
+	"m": g(2),
+
+	"a": a(3),
+	"s": b(3),
+	"d": c(3),
+	"f": d(3),
+	"g": e(3),
+	"h": f(3),
+	"j": g(3),
+	"k": a(4),
+	"l": b(4),
+
+	"q": c(4),
+	"w": d(4),
+	"e": e(4),
+	"r": f(4),
+	"t": g(4),
+	"y": a(5),
+	"u": b(5),
+	"i": c(5),
+	"o": d(5),
+	"p": e(5)
 };
 
-let effect = library["5"];
-let modifiers = [];
+let modifiers = [
+	(base, time, mix) => base + compose(triangle(4), lowPass("lp1")(220))(time) * mix,
+	(base, time, mix) => base * sine(2)(time) * 4 * mix,
+	(base, time, mix) => base + compose(sine(8), lowPass("lp2")(120))(time) * mix,
+	(base, time, mix) => base + compose(sine(2), lowPass("lp2")(120))(time) * mix,
+	(base, time, mix) => base * mix,
+];
+
+let note = notes["z"];
+let modifier = modifiers[0];
+let mix = 0.5;
 
 keypress(key => {
-	if (library[key.name])
-		effect = library[key.name]
+	if (notes[key.name])
+		note = notes[key.name]
 
-	if (["left", "right", "up", "down"].indexOf(key.name) !== -1) {
-		if (modifiers.indexOf(key.name) === -1) modifiers.push(key.name);
-		else modifiers = modifiers.filter(x => x !== key.name);
+	switch (key.name) {
+		case "left": modifier = modifiers[modifiers.indexOf(modifier) - 1] || modifiers[modifiers.length - 1]; break;
+		case "right": modifier = modifiers[modifiers.indexOf(modifier) + 1] || modifiers[0]; break;
+		case "up": mix = limit(-0.5, 1.5)(mix + 0.02); break;
+		case "down": mix = limit(-0.5, 1.5)(mix - 0.02); break;
 	}
 });
 
-synthesizer(time => {
-	const base = effect(time);
-
-	return (
-		base *
-		compose(
-			triangle(120),
-			lowPass("lp2")(220)
-		)(time) *
-		compose(sine(2))(time)
-	);
-}).play();
+synthesizer(time => modifier(note(time), time, mix)).play();
 
 exit();

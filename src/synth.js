@@ -74,6 +74,8 @@ const square = (frequency, ratio) => time => waves.square(time * frequency, rati
 
 const triangle = (frequency, ratio) => time => waves.triangle(time * frequency, ratio); 
 
+const clausen = (frequency, limit) => time => waves.clausen(time * frequency, limit); 
+
 const noise = waves.noise; 
 
 const note = pitch => (octave = 4) => sine(27.5 * Math.pow(2, octave + pitch))
@@ -242,6 +244,7 @@ module.exports = {
 	saw: sawtooth,
 	square,
 	triangle,
+	clausen,
 	noise,
 	note,
 	a,
