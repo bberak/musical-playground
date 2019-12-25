@@ -231,21 +231,6 @@ const movingAverage = _.memoize((key, numSamples = 1024) => {
 	};
 });
 
-const smooth = _.memoize((key, samplingRate = 44100) => {
-	
-	let last = 0;
-	let max = 1 / samplingRate;
-
-	return input => {
-
-		const diff = Math.abs(input - last);
-
-		last = diff > max ? input * 0.5 : input;
-
-		return last;
-	};
-});
-
 const apply = (...funcs) => (...args) =>  {
 	const arrFunctions = toFlatArray(funcs);
 	const arrArgs = toFlatArray(args);
