@@ -19,7 +19,7 @@
   "dependencies": {
     "audio-generator": "^2.1.2",
     "audio-speaker": "git+https://github.com/bberak/audio-speaker.git",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "periodic-function": "^1.1.4"
   }
 }
